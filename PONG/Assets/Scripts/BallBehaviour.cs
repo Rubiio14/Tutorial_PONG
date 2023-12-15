@@ -5,7 +5,13 @@ using UnityEngine;
 public class BallBehaviour : MonoBehaviour
 {
     [SerializeField]
+    GameScoreUI score;
+    [SerializeField]
     private Vector3 direction;
+    [SerializeField]
+    float ballspeed = 1.0f;
+    [SerializeField]
+    float initialballspeed = 1.0f;
     // Start is called before the first frame update
     void Start()
     {
@@ -37,21 +43,48 @@ public class BallBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position += direction * Time.deltaTime;
+        transform.position += direction * Time.deltaTime * ballspeed;
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
         Debug.Log("Una Collision con " + collision.gameObject.name);
+        if (collision.gameObject.CompareTag("Player"))
         {
-            if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Border"))
-            {
-                direction.x = -direction.x;
-                direction.y = Random.Range(-1f, 1f);
-            }
+            direction.x = -direction.x;
+            direction.y = Random.Range(-1f, 1f);
+            ballspeed += 0.5f;
 
-
+        } else if (collision.gameObject.CompareTag("Border"))
+        {
+            direction.y = -direction.y;
         }
+                
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("GoalZoneOne"))
+        {
+            ResetBall();
+            score.GoalPlayerTwo();
+        }
+        if(collision.CompareTag("GoalZoneTwo"))
+        {
+            ResetBall();    
+            score.GoalPlayerOne();
+        }
+    }
+
+    void ResetBall()
+    {
+        /*
+        Resetea la pelota a la posicion inicial
+        */
+        transform.position = Vector3.zero;
+        ballspeed = initialballspeed;
+        direction.x = -direction.x;
+        direction.y = Random.Range(-1f, 1f);
     }
 
 }
